@@ -1,5 +1,17 @@
 #!/bin/bash
 
+solve() {
+    if [[ $hand =~ ([0-9]+)\ $1 ]]; then
+        result="${BASH_REMATCH[1]}"
+        if [ "$result" -gt "$2" ]; then
+            possible=false
+        fi
+        if [ "$result" -gt "$3" ]; then
+            # Export is needed here, otherwise bash assume "x=y" is a command
+            export min_$1=$result
+        fi
+    fi
+}
 reds=12
 greens=13
 blues=14
@@ -15,35 +27,11 @@ while IFS= read -r line; do
     min_blue=0
     for hand in "${hands[@]}"; do
         # Check reds
-        if [[ $hand =~ ([0-9]+)\ red ]]; then
-            result="${BASH_REMATCH[1]}"
-            if [ "$result" -gt "$reds" ]; then
-                possible=false
-            fi
-            if [ "$result" -gt "$min_red" ]; then
-                min_red=$result
-            fi
-        fi
+        solve red $reds $min_red
         # Check greens
-        if [[ $hand =~ ([0-9]+)\ green ]]; then
-            result="${BASH_REMATCH[1]}"
-            if [ "$result" -gt "$greens" ]; then
-                possible=false
-            fi
-            if [ "$result" -gt "$min_green" ]; then
-                min_green=$result
-            fi
-        fi
+        solve green $greens $min_green
         # Check blues
-        if [[ $hand =~ ([0-9]+)\ blue ]]; then
-            result="${BASH_REMATCH[1]}"
-            if [ "$result" -gt "$blues" ]; then
-                possible=false
-            fi
-            if [ "$result" -gt "$min_blue" ]; then
-                min_blue=$result
-            fi
-        fi
+        solve blue $blues $min_blue
     done
     if [ "$possible" = true ]; then
         res=$((res + game_id))
